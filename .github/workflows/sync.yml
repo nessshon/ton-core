@@ -1,0 +1,127 @@
+name: Sync with pytoniq-core
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to sync (e.g. 0.1.45). Leave empty for latest."
+        required: false
+        default: ""
+      skip_pypi:
+        description: "Skip PyPI publish (for testing past releases)"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine target version
+        id: pypi
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            LATEST=$(curl -s https://pypi.org/pypi/pytoniq-core/json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])")
+            echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if tag exists
+        id: tag
+        run: |
+          if git rev-parse "v${{ steps.pypi.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if version exists on PyPI
+        id: pypi_exists
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://pypi.org/pypi/ton-core/${{ steps.pypi.outputs.version }}/json")
+          if [ "$STATUS" = "200" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if release exists
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "v${{ steps.pypi.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update pyproject.toml
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          NEW_VERSION: ${{ steps.pypi.outputs.version }}
+        run: |
+          python3 <<'PYEOF'
+          import re, os
+
+          new_version = os.environ["NEW_VERSION"]
+
+          with open("pyproject.toml") as f:
+              content = f.read()
+
+          content = re.sub(
+              r'^version\s*=\s*".*?"',
+              f'version = "{new_version}"',
+              content,
+              flags=re.MULTILINE,
+          )
+          content = re.sub(
+              r'"pytoniq-core==.*?"',
+              f'"pytoniq-core=={new_version}"',
+              content,
+          )
+
+          with open("pyproject.toml", "w") as f:
+              f.write(content)
+          PYEOF
+
+      - name: Commit and tag
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.pypi.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml
+          git diff --cached --quiet || git commit -m "Sync with pytoniq-core v${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
+          git push origin ton-core --tags
+
+      - name: Create GitHub Release
+        if: steps.release.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.pypi.outputs.version }}
+        run: |
+          gh release create "v${NEW_VERSION}" \
+            --title "v${NEW_VERSION}" \
+            --notes "Synced with [pytoniq-core v${NEW_VERSION}](https://github.com/yungwine/pytoniq-core)"
+
+      - name: Build package
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          pip install build
+          python -m build
+
+      - name: Publish to PyPI
+        if: steps.tag.outputs.exists == 'false' && steps.pypi_exists.outputs.exists == 'false' && inputs.skip_pypi != true
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

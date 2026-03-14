@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ton-core"
+version = "0.1.46"
+description = "Alias package for pytoniq-core — TON Blockchain primitives"
+requires-python = ">=3.9"
+authors = [
+    { name = "Maksim Kurbatov", email = "cyrbatoff@gmail.com" },
+]
+dependencies = ["pytoniq-core==0.1.39",]
+keywords = ["TON", "blockchain", "pytoniq", "ton-core",]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+]
+readme = "README.md"
+license = "MIT"
+
+[project.urls]
+"Original Repository" = "https://github.com/yungwine/pytoniq-core"
+"Original PyPI" = "https://pypi.org/project/pytoniq-core/"
+"Alias Repository" = "https://github.com/nessshon/ton-core"
