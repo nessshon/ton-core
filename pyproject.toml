@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ton-core"
-version = "0.1.45"
+version = "0.1.46"
 description = "Alias package for pytoniq-core — TON Blockchain primitives"
 requires-python = ">=3.9"
 authors = [
     { name = "Maksim Kurbatov", email = "cyrbatoff@gmail.com" },
 ]
-dependencies = ["pytoniq-core==0.1.45",]
+dependencies = ["pytoniq-core==0.1.46",]
 keywords = ["TON", "blockchain", "pytoniq", "ton-core",]
 classifiers = [
     "Programming Language :: Python :: 3.10",
