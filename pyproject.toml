@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ton-core"
+description = "Python core for TON Blockchain — primitives, data types, and utilities."
+requires-python = ">=3.10,<3.15"
+authors = [
+    { name = "nessshon" },
+]
+maintainers = [
+    { name = "nessshon" },
+]
+dependencies = [
+    "pytoniq-core~=0.1.46",
+]
+keywords = [
+    "TON",
+    "TON blockchain",
+    "The Open Network",
+    "blockchain",
+    "crypto",
+    "smart contracts",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dynamic = ["version"]
+readme = "README.md"
+license = "MIT"
+
+[project.scripts]
+ton-core = "ton_core.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/nessshon/ton-core/"
+"Based on" = "https://github.com/yungwine/pytoniq-core"
+
+[tool.setuptools.packages.find]
+include = ["ton_core", "ton_core.*"]
+
+[tool.setuptools.package-data]
+ton_core = ["py.typed", "*.pyi"]
+
+[tool.setuptools.dynamic]
+version = { attr = "ton_core.__meta__.__version__" }
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    # pydocstyle
+    "D",
+    # pycodestyle
+    "E",
+    "W",
+    # pyflakes
+    "F",
+    # isort
+    "I",
+    # flake8-bugbear
+    "B",
+    # flake8-comprehensions
+    "C4",
+    # pyupgrade
+    "UP",
+    # flake8-simplify
+    "SIM",
+    # type-checking imports
+    "TCH",
+    # perflint
+    "PERF",
+    # flake8-debugger
+    "T10",
+    # flake8-print
+    "T20",
+    # flake8-pie
+    "PIE",
+    # pylint errors
+    "PLE",
+    # flake8-return
+    "RET",
+    # ruff-specific
+    "RUF",
+]
+ignore = [
+    # line too long
+    "E501",
+    # docstring in public module
+    "D100",
+    # docstring in public package
+    "D104",
+    # docstring in magic method
+    "D105",
+    # docstring in __init__
+    "D107",
+    # blank line before class docstring (conflicts D211)
+    "D203",
+    # multi-line summary second line (conflicts D212)
+    "D213",
+    # move import into TYPE_CHECKING block
+    "TC001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"ton_core/boc/*" = ["D"]
+"ton_core/crypto/*" = ["D"]
+"ton_core/tl/*" = ["D"]
+"ton_core/tlb/*" = ["D"]
+"ton_core/proof/*" = ["D"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ton_core"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+pretty = true
+show_error_codes = true
+show_error_context = true
+namespace_packages = true
+follow_imports_for_stubs = true
+warn_unreachable = true
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-cast",
+    "truthy-bool",
+]

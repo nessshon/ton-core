@@ -1,0 +1,33 @@
+from .tlb import (
+    BaseDNSRecord,
+    BaseDNSRecordAddress,
+    BaseDNSRecordBinary,
+    ChangeDNSRecordBody,
+    DNSBalanceReleaseBody,
+    DNSRecordDNSNextResolver,
+    DNSRecords,
+    DNSRecordSite,
+    DNSRecordStorage,
+    DNSRecordWallet,
+    RenewDNSBody,
+    TONDNSAuction,
+    TONDNSCollectionData,
+    TONDNSItemData,
+)
+
+__all__ = [
+    "BaseDNSRecord",
+    "BaseDNSRecordAddress",
+    "BaseDNSRecordBinary",
+    "ChangeDNSRecordBody",
+    "DNSBalanceReleaseBody",
+    "DNSRecordDNSNextResolver",
+    "DNSRecordSite",
+    "DNSRecordStorage",
+    "DNSRecordWallet",
+    "DNSRecords",
+    "RenewDNSBody",
+    "TONDNSAuction",
+    "TONDNSCollectionData",
+    "TONDNSItemData",
+]
