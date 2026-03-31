@@ -125,7 +125,7 @@ class BlockRef(ConfigModel):
     :param file_hash: Base64-encoded file hash.
     :param root_hash: Base64-encoded root cell hash.
     :param workchain: Workchain ID (-1 masterchain, 0 basechain).
-    :param shard: Shard identifier, or ``None`` for masterchain.
+    :param shard: Shard identifier, or ``None`` if not specified.
     :param seqno: Block sequence number, or ``None``.
     """
 
@@ -323,7 +323,7 @@ class DhtNodesConfig(ConfigModel):
 class DhtConfig(ConfigModel):
     """DHT configuration from global config.
 
-    :param k: Kademlia replication parameter.
+    :param k: Kademlia bucket size (max nodes per routing bucket).
     :param a: Kademlia concurrency parameter.
     :param static_nodes: Static DHT node list.
     """

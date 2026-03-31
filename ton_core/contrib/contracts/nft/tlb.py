@@ -632,7 +632,7 @@ class NFTCollectionMintItemBody(TlbScheme):
 class NFTCollectionBatchMintItemBody(TlbScheme):
     """Message body for batch minting multiple NFT items."""
 
-    MAX_BATCH_ITEMS = 249
+    MAX_BATCH_ITEMS = 250
 
     def __init__(
         self,
@@ -884,7 +884,7 @@ class NFTDestroyBody(TlbScheme):
     def serialize(self) -> Cell:
         """Serialize to Cell."""
         cell = begin_cell()
-        cell.store_uint(OpCode.SBT_DESTORY, 32)
+        cell.store_uint(OpCode.SBT_DESTROY, 32)
         cell.store_uint(self.query_id, 64)
         return cell.end_cell()
 

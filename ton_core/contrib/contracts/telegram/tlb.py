@@ -11,7 +11,6 @@ from ton_core.contrib.contracts.dns.tlb import DNSRecords
 from ton_core.contrib.contracts.nft.tlb import OffchainContent, RoyaltyParams
 from ton_core.contrib.contracts.opcodes import OpCode
 from ton_core.contrib.types import AddressLike, PublicKey
-from ton_core.contrib.utils import decode_dns_name
 from ton_core.tlb.tlb import TlbScheme
 
 __all__ = [
@@ -223,8 +222,8 @@ class TeleItemTokenInfo(TlbScheme):
     def deserialize(cls, cs: Slice) -> TeleItemTokenInfo:
         """Deserialize from Slice."""
         return cls(
-            name=decode_dns_name(_load_text(cs)),
-            domain=decode_dns_name(_load_text(cs)),
+            name=_load_text(cs).decode(),
+            domain=_load_text(cs).decode(),
         )
 
 
@@ -299,7 +298,6 @@ class TeleItemState(TlbScheme):
     @classmethod
     def deserialize(cls, cs: Slice) -> TeleItemState:
         """Deserialize from Slice."""
-        cs.preload_ref()
         return cls(
             owner_address=_load_std_address(cs),
             content=TeleItemContent.deserialize(cs.load_ref().begin_parse()),
@@ -400,7 +398,7 @@ class TeleCollectionData(TlbScheme):
             owner_key=PublicKey(cs.load_uint(256)),
             content=OffchainContent.deserialize(cs.load_ref().begin_parse(), True),
             item_code=cs.load_ref(),
-            full_domain=decode_dns_name(_load_text(cs.load_ref().begin_parse())),
+            full_domain=_load_text(cs.load_ref().begin_parse()).decode(),
             royalty_params=RoyaltyParams.deserialize(cs.load_ref().begin_parse()),
         )
 

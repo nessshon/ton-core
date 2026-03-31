@@ -46,6 +46,7 @@ from .contrib.contracts.dns.tlb import DNSRecordDNSNextResolver as DNSRecordDNSN
 from .contrib.contracts.dns.tlb import DNSRecords as DNSRecords
 from .contrib.contracts.dns.tlb import DNSRecordSite as DNSRecordSite
 from .contrib.contracts.dns.tlb import DNSRecordStorage as DNSRecordStorage
+from .contrib.contracts.dns.tlb import DNSRecordText as DNSRecordText
 from .contrib.contracts.dns.tlb import DNSRecordWallet as DNSRecordWallet
 from .contrib.contracts.dns.tlb import RenewDNSBody as RenewDNSBody
 from .contrib.contracts.dns.tlb import TONDNSAuction as TONDNSAuction

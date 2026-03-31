@@ -162,11 +162,7 @@ class WalletV4Data(BaseWalletData):
 
 
 class WalletV5SubwalletID:
-    """Enhanced subwallet identifier for Wallet v5.
-
-    Packs network, workchain, version, and subwallet number
-    into a single 32-bit value.
-    """
+    """Enhanced subwallet identifier for Wallet v5."""
 
     def __init__(
         self,
@@ -177,7 +173,7 @@ class WalletV5SubwalletID:
     ) -> None:
         """Initialize the subwallet identifier.
 
-        :param subwallet_number: Subwallet number (0-32767).
+        :param subwallet_number: Subwallet number.
         :param workchain: Target workchain.
         :param version: Wallet version identifier.
         :param network: Network identifier.
@@ -237,19 +233,19 @@ class WalletV5BetaData(BaseWalletData):
         public_key: PublicKey,
         subwallet_id: WalletV5SubwalletID,
         seqno: int = 0,
-        plugins: Cell | None = None,
+        extensions: Cell | None = None,
     ) -> None:
         """Initialize Wallet v5 Beta data.
 
         :param public_key: Ed25519 public key.
         :param subwallet_id: Enhanced subwallet identifier.
         :param seqno: Sequence number.
-        :param plugins: Plugins dictionary cell, or None.
+        :param extensions: Extensions dictionary cell, or None.
         """
         super().__init__(public_key)
         self.seqno = seqno
         self.subwallet_id = subwallet_id
-        self.plugins = plugins
+        self.extensions = extensions
 
     def _store_wallet_id(self, builder: Builder) -> None:
         builder.store_int(self.subwallet_id.network, 32)
@@ -263,7 +259,7 @@ class WalletV5BetaData(BaseWalletData):
         cell.store_uint(self.seqno, 33)
         self._store_wallet_id(cell)
         cell.store_bytes(self.public_key.as_bytes)
-        cell.store_dict(self.plugins)
+        cell.store_dict(self.extensions)
         return cell.end_cell()
 
     @classmethod
@@ -282,7 +278,7 @@ class WalletV5BetaData(BaseWalletData):
             seqno=cs.load_uint(33),
             subwallet_id=cls._load_wallet_id(cs),
             public_key=PublicKey(cs.load_bytes(32)),
-            plugins=cs.load_maybe_ref(),
+            extensions=cs.load_maybe_ref(),
         )
 
 
@@ -294,7 +290,7 @@ class WalletV5Data(BaseWalletData):
         public_key: PublicKey,
         subwallet_id: WalletV5SubwalletID,
         seqno: int = 0,
-        plugins: Cell | None = None,
+        extensions: Cell | None = None,
         is_signature_allowed: bool = True,
     ) -> None:
         """Initialize Wallet v5 data.
@@ -302,13 +298,13 @@ class WalletV5Data(BaseWalletData):
         :param public_key: Ed25519 public key.
         :param subwallet_id: Enhanced subwallet identifier.
         :param seqno: Sequence number.
-        :param plugins: Plugins dictionary cell, or None.
+        :param extensions: Extensions dictionary cell, or None.
         :param is_signature_allowed: Whether signature auth is enabled.
         """
         super().__init__(public_key)
         self.seqno = seqno
         self.subwallet_id = subwallet_id
-        self.plugins = plugins
+        self.extensions = extensions
         self.is_signature_allowed = is_signature_allowed
 
     def serialize(self) -> Cell:
@@ -318,7 +314,7 @@ class WalletV5Data(BaseWalletData):
         cell.store_uint(self.seqno, 32)
         cell.store_uint(self.subwallet_id.pack(), 32)
         cell.store_bytes(self.public_key.as_bytes)
-        cell.store_dict(self.plugins)
+        cell.store_dict(self.extensions)
         return cell.end_cell()
 
     @classmethod
@@ -333,7 +329,7 @@ class WalletV5Data(BaseWalletData):
             seqno=cs.load_uint(32),
             subwallet_id=WalletV5SubwalletID.unpack(cs.load_uint(32), network),
             public_key=PublicKey(cs.load_bytes(32)),
-            plugins=cs.load_maybe_ref(),
+            extensions=cs.load_maybe_ref(),
         )
 
 
@@ -345,19 +341,19 @@ class WalletHighloadV2Data(BaseWalletData):
         public_key: PublicKey,
         subwallet_id: int = DEFAULT_SUBWALLET_ID,
         last_cleaned: int = 0,
-        old_queries: Cell | None = None,
+        queries: Cell | None = None,
     ) -> None:
         """Initialize Highload Wallet v2 data.
 
         :param public_key: Ed25519 public key.
         :param subwallet_id: Subwallet identifier.
         :param last_cleaned: Timestamp of last query cleanup.
-        :param old_queries: Processed query IDs dictionary, or None.
+        :param queries: Query IDs dictionary, or None.
         """
         super().__init__(public_key)
         self.subwallet_id = subwallet_id
         self.last_cleaned = last_cleaned
-        self.old_queries = old_queries
+        self.queries = queries
 
     def serialize(self) -> Cell:
         """Serialize to Cell."""
@@ -365,7 +361,7 @@ class WalletHighloadV2Data(BaseWalletData):
         cell.store_uint(self.subwallet_id, 32)
         cell.store_uint(self.last_cleaned, 64)
         cell.store_bytes(self.public_key.as_bytes)
-        cell.store_dict(self.old_queries)
+        cell.store_dict(self.queries)
         return cell.end_cell()
 
     @classmethod
@@ -375,7 +371,7 @@ class WalletHighloadV2Data(BaseWalletData):
             subwallet_id=cs.load_uint(32),
             last_cleaned=cs.load_uint(64),
             public_key=PublicKey(cs.load_bytes(32)),
-            old_queries=cs.load_maybe_ref(),
+            queries=cs.load_maybe_ref(),
         )
 
 

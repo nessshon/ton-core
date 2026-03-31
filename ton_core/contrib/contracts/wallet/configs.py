@@ -85,8 +85,8 @@ class WalletV5BetaConfig(BaseWalletConfig):
     """Sequence number for transaction ordering (default: 0)."""
     subwallet_id: WalletV5SubwalletID | None = None
     """Enhanced subwallet identifier with network and workchain info."""
-    plugins: Cell | None = None
-    """Optional dictionary cell containing installed plugins."""
+    extensions: Cell | None = None
+    """Optional dictionary cell containing installed extensions."""
 
 
 @dataclass
@@ -99,8 +99,8 @@ class WalletV5Config(BaseWalletConfig):
     """Sequence number for transaction ordering (default: 0)."""
     subwallet_id: WalletV5SubwalletID | None = None
     """Enhanced subwallet identifier with network and workchain info."""
-    plugins: Cell | None = None
-    """Optional dictionary cell containing installed plugins."""
+    extensions: Cell | None = None
+    """Optional dictionary cell containing installed extensions."""
 
 
 @dataclass
@@ -111,8 +111,8 @@ class WalletHighloadV2Config(BaseWalletConfig):
     """Subwallet identifier for wallet isolation (default: 698983191)."""
     last_cleaned: int = 0
     """Timestamp of last query cleanup operation (default: 0)."""
-    old_queries: Cell | None = None
-    """Optional dictionary cell storing processed query IDs for replay protection."""
+    queries: Cell | None = None
+    """Optional dictionary cell storing query IDs for replay protection."""
 
 
 @dataclass

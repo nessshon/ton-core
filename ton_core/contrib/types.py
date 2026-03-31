@@ -127,6 +127,9 @@ class DNSPrefix(int, Enum):
     SITE = 0xAD01
     """ADNL address for TON Sites."""
 
+    TEXT = 0x1EDA
+    """Text record (chunked snake data)."""
+
 
 class DNSCategory(int, Enum):
     """TON DNS record category as SHA-256 hash."""
@@ -150,6 +153,11 @@ class DNSCategory(int, Enum):
         113837984718866553357015413641085683664993881322709313240352703269157551621118
     )
     """Hash for site ADNL address queries."""
+
+    TEXT = (
+        10044561125017263517954105783034891270977231663758138475770051753675309360734
+    )
+    """Hash for text record queries."""
 
     ALL = 0
     """Query all categories."""

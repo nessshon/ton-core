@@ -20,6 +20,7 @@ __all__ = [
     "DNSRecordDNSNextResolver",
     "DNSRecordSite",
     "DNSRecordStorage",
+    "DNSRecordText",
     "DNSRecordWallet",
     "DNSRecords",
     "RenewDNSBody",
@@ -120,6 +121,20 @@ class DNSRecordDNSNextResolver(BaseDNSRecordAddress):
 
     PREFIX: ClassVar[DNSPrefix] = DNSPrefix.DNS_NEXT_RESOLVER
 
+    def _build_cell(self) -> Cell:
+        cell = begin_cell()
+        cell.store_uint(self.PREFIX, 16)
+        cell.store_address(self.value)
+        return cell.end_cell()
+
+    @classmethod
+    def _parse_cell(cls, cs: Slice) -> DNSRecordDNSNextResolver:
+        cs.skip_bits(16)
+        addr = cs.load_address()
+        if not isinstance(addr, Address):
+            raise ValueError(f"Expected Address, got {type(addr).__name__}")
+        return cls(addr)
+
     @classmethod
     def deserialize(cls, cs: Slice) -> DNSRecordDNSNextResolver:
         """Deserialize from Slice."""
@@ -143,6 +158,17 @@ class DNSRecordStorage(BaseDNSRecordBinary):
     PREFIX: ClassVar[DNSPrefix] = DNSPrefix.STORAGE
     BINARY_CLS: ClassVar[type[BagID]] = BagID
 
+    def _build_cell(self) -> Cell:
+        cell = begin_cell()
+        cell.store_uint(self.PREFIX, 16)
+        cell.store_bytes(self.value.as_bytes)
+        return cell.end_cell()
+
+    @classmethod
+    def _parse_cell(cls, cs: Slice) -> DNSRecordStorage:
+        cs.skip_bits(16)
+        return cls(cs.load_bytes(32))
+
     @classmethod
     def deserialize(cls, cs: Slice) -> DNSRecordStorage:
         """Deserialize from Slice."""
@@ -161,6 +187,35 @@ class DNSRecordSite(BaseDNSRecordBinary):
         return cast("DNSRecordSite", super().deserialize(cs))
 
 
+class DNSRecordText(BaseDNSRecord):
+    """DNS text record."""
+
+    PREFIX: ClassVar[DNSPrefix] = DNSPrefix.TEXT
+
+    def __init__(self, value: str) -> None:
+        """Initialize DNSRecordText.
+
+        :param value: Text content.
+        """
+        super().__init__(value)
+
+    def _build_cell(self) -> Cell:
+        cell = begin_cell()
+        cell.store_uint(self.PREFIX, 16)
+        cell.store_snake_string(self.value)
+        return cell.end_cell()
+
+    @classmethod
+    def _parse_cell(cls, cs: Slice) -> DNSRecordText:
+        cs.skip_bits(16)
+        return cls(cs.load_snake_string())
+
+    @classmethod
+    def deserialize(cls, cs: Slice) -> DNSRecordText:
+        """Deserialize from Slice."""
+        return cast("DNSRecordText", super().deserialize(cs))
+
+
 class DNSRecords(OnchainContent):
     """Collection of DNS records for a domain."""
 
@@ -169,6 +224,7 @@ class DNSRecords(OnchainContent):
         "storage": DNSRecordStorage,
         "wallet": DNSRecordWallet,
         "site": DNSRecordSite,
+        "text": DNSRecordText,
     }
 
     _DNS_CATEGORIES: ClassVar[dict[int, str]] = {
@@ -176,6 +232,7 @@ class DNSRecords(OnchainContent):
         DNSCategory.STORAGE: "storage",
         DNSCategory.WALLET: "wallet",
         DNSCategory.SITE: "site",
+        DNSCategory.TEXT: "text",
     }
 
     _DNS_KEYS: ClassVar[set[str]] = set(_DNS_RECORDS_CLASSES.keys())
@@ -361,8 +418,8 @@ class TONDNSItemData(TlbScheme):
             content=OnchainContent.deserialize(cs.load_ref().begin_parse(), True),
             domain=cs.load_ref().begin_parse().load_snake_string(),
             auction=(
-                TONDNSAuction.deserialize(cs.load_ref().begin_parse())
-                if cs.remaining_refs > 0
+                TONDNSAuction.deserialize(auction_cell.begin_parse())
+                if (auction_cell := cs.load_maybe_ref()) is not None
                 else None
             ),
             last_fill_up_time=cs.load_uint(64),
@@ -413,6 +470,7 @@ class ChangeDNSRecordBody(TlbScheme):
                 DNSPrefix.WALLET: DNSRecordWallet,
                 DNSPrefix.STORAGE: DNSRecordStorage,
                 DNSPrefix.SITE: DNSRecordSite,
+                DNSPrefix.TEXT: DNSRecordText,
             }
             record_cls = record_map.get(prefix)
             if record_cls is not None:
@@ -425,7 +483,7 @@ class ChangeDNSRecordBody(TlbScheme):
 
 
 class RenewDNSBody(TlbScheme):
-    """Message body for renewing a DNS domain."""
+    """Message body for renewing a DNS domain (change_dns_record with category=0 and no value)."""
 
     def __init__(self, query_id: int = 0) -> None:
         """Initialize RenewDNSBody.

@@ -33,7 +33,7 @@ class ContractVersion(str, Enum):
     WalletV5R1 = "wallet_v5r1"
     """Wallet contract version 5, revision 1."""
 
-    WalletHighloadV2 = "wallet_highloadv_v2"
+    WalletHighloadV2 = "wallet_highload_v2"
     """Highload wallet contract version 2."""
     WalletHighloadV3R1 = "wallet_highload_v3r1"
     """Highload wallet contract version 3, revision 1."""
