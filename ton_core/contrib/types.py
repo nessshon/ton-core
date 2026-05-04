@@ -256,11 +256,7 @@ class Binary:
             if s.lower().startswith("0x"):
                 return bytes.fromhex(s[2:])
 
-            if (
-                len(s) % 2 == 0
-                and re.compile(r"^[0-9a-fA-F]+$").fullmatch(s)
-                and len(s) == self._size * 2
-            ):
+            if len(s) % 2 == 0 and re.compile(r"^[0-9a-fA-F]+$").fullmatch(s):
                 return bytes.fromhex(s)
 
             with suppress(Exception):
