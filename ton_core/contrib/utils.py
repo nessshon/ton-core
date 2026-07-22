@@ -386,7 +386,9 @@ class TextCipher:
 
     @staticmethod
     def _xor32(a: bytes, b: bytes) -> bytes:
-        return bytes(x ^ y for x, y in zip(a, b, strict=True))
+        if len(a) != len(b):
+            raise ValueError(f"XOR length mismatch: {len(a)} != {len(b)}")
+        return bytes(x ^ y for x, y in zip(a, b))
 
     @staticmethod
     def _derive(shared: bytes, msg_key: bytes) -> tuple[bytes, bytes]:

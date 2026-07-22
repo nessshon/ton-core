@@ -6,7 +6,7 @@ import re
 from contextlib import suppress
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Union
 
 from nacl.signing import SigningKey
 
@@ -34,10 +34,10 @@ __all__ = [
     "WorkchainID",
 ]
 
-AddressLike = Address | str
+AddressLike = Union[Address, str]
 """TON address: ``Address`` object or string representation."""
 
-BinaryLike = str | int | bytes
+BinaryLike = Union[str, int, bytes]
 """Accepted binary input types."""
 
 MASTERCHAIN_SHARD: int = -9223372036854775808
@@ -179,7 +179,7 @@ class ContractState(str, Enum):
     """No balance or state."""
 
 
-@dataclass(slots=True, frozen=True)
+@dataclass(frozen=True)
 class SignatureDomain:
     """Ed25519 signature domain for TON networks.
 

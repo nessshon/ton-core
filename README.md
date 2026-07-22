@@ -1,7 +1,7 @@
 # 📦 TON Core
 
 [![TON](https://img.shields.io/badge/TON-grey?logo=TON&logoColor=40AEF0)](https://ton.org)
-![Python Versions](https://img.shields.io/badge/Python-3.10%20--%203.14-black?color=FFE873&labelColor=3776AB)
+![Python Versions](https://img.shields.io/badge/Python-3.9%20--%203.14-black?color=FFE873&labelColor=3776AB)
 [![PyPI](https://img.shields.io/pypi/v/ton-core.svg)](https://pypi.python.org/pypi/ton-core)
 [![License](https://img.shields.io/github/license/nessshon/ton-core)](https://github.com/nessshon/ton-core/blob/main/LICENSE)
 [![Donate](https://img.shields.io/badge/Donate-TON-blue)](https://tonviewer.com/UQCZq3_Vd21-4y4m7Wc-ej9NFOhh_qvdfAkAYAOHoQ__Ness)
