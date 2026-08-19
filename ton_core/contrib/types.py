@@ -307,6 +307,10 @@ class PublicKey(Binary):
         """
         super().__init__(raw, size=32)
 
+    def __repr__(self) -> str:
+        """Return a debug string with class name and hex-encoded value."""
+        return f"{self.__class__.__name__}<{self.as_hex!r}>"
+
 
 class PrivateKey(Binary):
     """Ed25519 private key with automatic public-key derivation.
