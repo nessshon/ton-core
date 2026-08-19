@@ -94,6 +94,12 @@ from .contrib.contracts.nft.tlb import OffchainItemContent as OffchainItemConten
 from .contrib.contracts.nft.tlb import OnchainContent as OnchainContent
 from .contrib.contracts.nft.tlb import RoyaltyParams as RoyaltyParams
 from .contrib.contracts.opcodes import OpCode as OpCode
+from .contrib.contracts.storage.tlb import StorageData as StorageData
+from .contrib.contracts.storage.tlb import StorageModifyProvidersBody as StorageModifyProvidersBody
+from .contrib.contracts.storage.tlb import StorageProofBody as StorageProofBody
+from .contrib.contracts.storage.tlb import StorageProvider as StorageProvider
+from .contrib.contracts.storage.tlb import StorageProviderInfo as StorageProviderInfo
+from .contrib.contracts.storage.tlb import StorageWithdrawOwnerBody as StorageWithdrawOwnerBody
 from .contrib.contracts.telegram.tlb import TeleCollectionData as TeleCollectionData
 from .contrib.contracts.telegram.tlb import TeleItemAuction as TeleItemAuction
 from .contrib.contracts.telegram.tlb import TeleItemAuctionConfig as TeleItemAuctionConfig
@@ -163,6 +169,7 @@ from .contrib.types import NetworkGlobalID as NetworkGlobalID
 from .contrib.types import PrivateKey as PrivateKey
 from .contrib.types import PublicKey as PublicKey
 from .contrib.types import SendMode as SendMode
+from .contrib.types import Signature as Signature
 from .contrib.types import SignatureDomain as SignatureDomain
 from .contrib.types import WorkchainID as WorkchainID
 from .contrib.utils import TextCipher as TextCipher

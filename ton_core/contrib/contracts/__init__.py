@@ -62,6 +62,14 @@ from .nft import (
     RoyaltyParams,
 )
 from .opcodes import OpCode
+from .storage import (
+    StorageData,
+    StorageModifyProvidersBody,
+    StorageProofBody,
+    StorageProvider,
+    StorageProviderInfo,
+    StorageWithdrawOwnerBody,
+)
 from .telegram import (
     TeleCollectionData,
     TeleItemAuction,
@@ -180,6 +188,12 @@ __all__ = [
     "OutActionSendMsg",
     "RenewDNSBody",
     "RoyaltyParams",
+    "StorageData",
+    "StorageModifyProvidersBody",
+    "StorageProofBody",
+    "StorageProvider",
+    "StorageProviderInfo",
+    "StorageWithdrawOwnerBody",
     "TONDNSAuction",
     "TONDNSCollectionData",
     "TONDNSItemData",

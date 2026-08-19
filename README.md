@@ -22,7 +22,7 @@ Primitives, data types, TLB schemas, contract tools, and crypto utilities for TO
 
 - **Primitives** — core data types for cells, addresses, slices, and hash maps
 - **TLB Schemas** — transactions, blocks, accounts, and config parameters
-- **Contracts** — wallets, jettons, NFTs, DNS, and Telegram
+- **Contracts** — wallets, jettons, NFTs, DNS, Telegram, and Storage
 - **Crypto** — mnemonics, keys, signing, and encryption
 - **Utilities** — conversion, encoding, and helpers
 

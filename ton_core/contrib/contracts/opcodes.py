@@ -96,3 +96,13 @@ class OpCode(int, Enum):
     TELEITEM_CANCEL_AUCTION = 0x371638AE
     """Cancel an active auction for a Telegram username NFT item."""
 
+    STORAGE_MODIFY_PROVIDERS = 0x3DC680AE
+    """Replace the provider set of a TON Storage contract."""
+    STORAGE_WITHDRAW_OWNER = 0x61FFF683
+    """Withdraw the balance and terminate a TON Storage contract."""
+    STORAGE_PROOF = 0x48F548CE
+    """Submit a storage proof to a TON Storage contract."""
+    STORAGE_REWARD_WITHDRAWAL = 0xA91BAF56
+    """Pay a provider its reward for a proven storage span."""
+    STORAGE_CONTRACT_TERMINATED = 0xB6236D63
+    """Notify the owner that a TON Storage contract was terminated."""

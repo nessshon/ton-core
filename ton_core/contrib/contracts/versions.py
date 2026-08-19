@@ -79,3 +79,6 @@ class ContractVersion(str, Enum):
     TONDNSItem = "ton_dns_item"
     """TON DNS item contract."""
 
+    StorageContract = "storage_contract"
+    """TON Storage contract holding a single bag."""
+

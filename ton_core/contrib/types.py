@@ -30,6 +30,7 @@ __all__ = [
     "PrivateKey",
     "PublicKey",
     "SendMode",
+    "Signature",
     "SignatureDomain",
     "WorkchainID",
 ]
@@ -292,6 +293,10 @@ class Binary:
         """Return True if both Binary instances hold the same bytes."""
         return isinstance(other, Binary) and self.as_bytes == other.as_bytes
 
+    def __hash__(self) -> int:
+        """Return a hash of the underlying bytes."""
+        return hash(self.as_bytes)
+
     def __repr__(self) -> str:
         """Return a debug string with class name and base64-encoded value."""
         return f"{self.__class__.__name__}<{self.as_b64!r}>"
@@ -347,6 +352,17 @@ class PrivateKey(Binary):
         """Full 64-byte keypair (private + public)."""
         raw = self.as_bytes + self.public_key.as_bytes
         return Binary(raw, size=64)
+
+
+class Signature(Binary):
+    """Ed25519 signature (64 bytes)."""
+
+    def __init__(self, raw: BinaryLike) -> None:
+        """Initialize Signature from raw signature data.
+
+        :param raw: 64-byte signature data.
+        """
+        super().__init__(raw, size=64)
 
 
 class ADNL(Binary):
