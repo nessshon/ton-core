@@ -120,7 +120,6 @@ from .transaction import InMsg as InMsg
 from .transaction import IntermediateAddress as IntermediateAddress
 from .transaction import InternalMsgInfo as InternalMsgInfo
 from .transaction import LibRef as LibRef
-from .transaction import MessageAny as MessageAny
 from .transaction import MsgEnvelope as MsgEnvelope
 from .transaction import MsgMetadata as MsgMetadata
 from .transaction import OutAction as OutAction

@@ -74,7 +74,7 @@ class TeleItemAuctionState(TlbScheme):
         """Deserialize from Slice."""
         return cls(
             last_bid=cs.load_maybe_ref(),
-            min_bid=cs.load_coins() or 0,
+            min_bid=cs.load_coins(),
             end_time=cs.load_uint(32),
         )
 
@@ -123,8 +123,8 @@ class TeleItemAuctionConfig(TlbScheme):
         """Deserialize from Slice."""
         return cls(
             beneficiary_address=_load_std_address(cs),
-            initial_min_bid=cs.load_coins() or 0,
-            max_bid=cs.load_coins() or 0,
+            initial_min_bid=cs.load_coins(),
+            max_bid=cs.load_coins(),
             min_bid_step=cs.load_uint(8),
             min_extend_time=cs.load_uint(32),
             duration=cs.load_uint(32),

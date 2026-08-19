@@ -68,7 +68,7 @@ class JettonMasterStandardData(TlbScheme):
         """Deserialize from Slice."""
         from ton_core.contrib.types import MetadataPrefix
 
-        total_supply = cs.load_coins() or 0
+        total_supply = cs.load_coins()
         admin_address = _load_std_address(cs)
         content = cs.load_ref().begin_parse()
         return cls(
@@ -122,7 +122,7 @@ class JettonMasterStablecoinData(TlbScheme):
     def deserialize(cls, cs: Slice) -> JettonMasterStablecoinData:
         """Deserialize from Slice."""
         return cls(
-            total_supply=cs.load_coins() or 0,
+            total_supply=cs.load_coins(),
             admin_address=_load_std_address(cs),
             next_admin_address=_load_std_address(cs),
             jetton_wallet_code=cs.load_ref(),
@@ -165,7 +165,7 @@ class JettonWalletStandardData(TlbScheme):
     def deserialize(cls, cs: Slice) -> JettonWalletStandardData:
         """Deserialize from Slice."""
         return cls(
-            balance=cs.load_coins() or 0,
+            balance=cs.load_coins(),
             owner_address=_load_std_address(cs),
             jetton_master_address=_load_std_address(cs),
             jetton_wallet_code=cs.load_ref(),
@@ -208,7 +208,7 @@ class JettonWalletStablecoinData(TlbScheme):
         """Deserialize from Slice."""
         return cls(
             status=cs.load_uint(4),
-            balance=cs.load_coins() or 0,
+            balance=cs.load_coins(),
             owner_address=_load_std_address(cs),
             jetton_master_address=_load_std_address(cs),
         )
@@ -245,7 +245,7 @@ class JettonWalletStablecoinV2Data(TlbScheme):
     def deserialize(cls, cs: Slice) -> JettonWalletStablecoinV2Data:
         """Deserialize from Slice."""
         return cls(
-            balance=cs.load_coins() or 0,
+            balance=cs.load_coins(),
             owner_address=_load_std_address(cs),
             jetton_master_address=_load_std_address(cs),
         )
@@ -321,10 +321,10 @@ class JettonInternalTransferBody(TlbScheme):
         cs.skip_bits(32)
         return cls(
             query_id=cs.load_uint(64),
-            jetton_amount=cs.load_coins() or 0,
+            jetton_amount=cs.load_coins(),
             from_address=_load_std_address(cs),
             response_address=_load_std_address(cs),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             forward_payload=cs.load_maybe_ref(),
         )
 
@@ -379,11 +379,11 @@ class JettonTransferBody(TlbScheme):
         cs.skip_bits(32)
         return cls(
             query_id=cs.load_uint(64),
-            jetton_amount=cs.load_coins() or 0,
+            jetton_amount=cs.load_coins(),
             destination=_load_std_address(cs),
             response_address=_load_std_address(cs),
             custom_payload=cs.load_maybe_ref(),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             forward_payload=cs.load_maybe_ref(),
         )
 
@@ -427,7 +427,7 @@ class JettonMintBody(TlbScheme):
         return cls(
             query_id=cs.load_uint(64),
             destination=_load_std_address(cs),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             internal_transfer=JettonInternalTransferBody.deserialize(cs.load_ref().begin_parse()),
         )
 
@@ -471,7 +471,7 @@ class JettonStandardMintBody(TlbScheme):
         return cls(
             query_id=cs.load_uint(64),
             destination=_load_std_address(cs),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             internal_transfer=JettonInternalTransferBody.deserialize(cs.load_ref().begin_parse()),
         )
 
@@ -744,7 +744,7 @@ class JettonBurnBody(TlbScheme):
         cs.skip_bits(32)
         return cls(
             query_id=cs.load_uint(64),
-            jetton_amount=cs.load_coins() or 0,
+            jetton_amount=cs.load_coins(),
             response_address=_load_std_address(cs),
             custom_payload=cs.load_maybe_ref(),
         )

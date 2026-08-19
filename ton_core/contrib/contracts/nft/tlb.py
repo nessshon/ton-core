@@ -624,7 +624,7 @@ class NFTCollectionMintItemBody(TlbScheme):
         return cls(
             query_id=cs.load_uint(64),
             item_index=cs.load_uint(64),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             item_ref=cs.load_ref(),
         )
 
@@ -866,7 +866,7 @@ class NFTTransferEditorshipBody(TlbScheme):
             editor_address=_load_std_address(cs),
             response_address=_load_std_address(cs),
             custom_payload=cs.load_maybe_ref(),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             forward_payload=cs.load_maybe_ref(),
         )
 
@@ -968,6 +968,6 @@ class NFTTransferBody(TlbScheme):
             destination=_load_std_address(cs),
             response_address=_load_std_address(cs),
             custom_payload=cs.load_maybe_ref(),
-            forward_amount=cs.load_coins() or 0,
+            forward_amount=cs.load_coins(),
             forward_payload=cs.load_maybe_ref(),
         )

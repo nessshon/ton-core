@@ -1,5 +1,7 @@
 from typing import Any
 
+def is_builtin_class_instance(obj: Any) -> bool: ...
+
 class TlbError(Exception): ...
 
 class TlbScheme:

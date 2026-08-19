@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, TypeVar
 
-from .builder import Builder as Builder
+from .builder import Builder
 from .deserialize import NullCell
 from .exotic import LevelMask
-from .slice import Slice as Slice
+from .slice import Slice
 from .tvm_bitarray import BitarrayLike, TvmBitarray
 
 _CellT = TypeVar("_CellT", bound="Cell")

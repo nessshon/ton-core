@@ -328,7 +328,7 @@ class TONDNSAuction(TlbScheme):
         """Deserialize from Slice."""
         return cls(
             max_bid_address=_load_std_address(cs),
-            max_bid_amount=cs.load_coins() or 0,
+            max_bid_amount=cs.load_coins(),
             auction_end_time=cs.load_uint(64),
         )
 
