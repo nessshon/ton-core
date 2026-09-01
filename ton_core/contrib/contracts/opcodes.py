@@ -106,3 +106,16 @@ class OpCode(int, Enum):
     """Pay a provider its reward for a proven storage span."""
     STORAGE_CONTRACT_TERMINATED = 0xB6236D63
     """Notify the owner that a TON Storage contract was terminated."""
+
+    WALLET_TG_SEND_ONE_MESSAGE_INTERNAL = 0x63896E74
+    """Send one message from a Telegram wallet for internal messages."""
+    WALLET_TG_SEND_ONE_MESSAGE_EXTERNAL = 0x63896E75
+    """Send one message from a Telegram wallet for external messages."""
+    WALLET_TG_SEND_BULK_MESSAGES_INTERNAL = 0x73896E74
+    """Send 1-255 messages from a Telegram wallet for internal messages."""
+    WALLET_TG_SEND_BULK_MESSAGES_EXTERNAL = 0x73896E75
+    """Send 1-255 messages from a Telegram wallet for external messages."""
+    WALLET_TG_CHANGE_PUBLIC_KEY_INTERNAL = 0xFBBA99C7
+    """Rotate the signing key of a Telegram wallet for internal messages."""
+    WALLET_TG_CHANGE_PUBLIC_KEY_EXTERNAL = 0xFBBA99C8
+    """Rotate the signing key of a Telegram wallet for external messages."""

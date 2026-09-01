@@ -13,6 +13,7 @@ __all__ = [
     "WalletHighloadV2Config",
     "WalletHighloadV3Config",
     "WalletPreprocessedV2Config",
+    "WalletTgConfig",
     "WalletV1Config",
     "WalletV2Config",
     "WalletV3Config",
@@ -138,3 +139,12 @@ class WalletPreprocessedV2Config(BaseWalletConfig):
     seqno: int = 0
     """Sequence number for transaction ordering (default: 0)."""
 
+
+@dataclass
+class WalletTgConfig(BaseWalletConfig):
+    """Configuration for WalletTg contracts."""
+
+    seqno: int = 0
+    """Sequence number for transaction ordering (default: 0)."""
+    subwallet_id: int | None = None
+    """Subwallet identifier (resolved from the client network if None)."""

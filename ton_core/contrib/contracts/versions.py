@@ -41,6 +41,9 @@ class ContractVersion(str, Enum):
     WalletPreprocessedV2 = "wallet_preprocessed_v2"
     """Preprocessed wallet contract version 2."""
 
+    WalletTg = "wallet_tg"
+    """Telegram wallet contract."""
+
     NFTCollectionStandard = "nft_collection_standard"
     """Standard NFT collection contract."""
     NFTCollectionEditable = "nft_collection_editable"

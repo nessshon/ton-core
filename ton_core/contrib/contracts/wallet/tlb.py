@@ -10,6 +10,7 @@ from ton_core.contrib.contracts.opcodes import OpCode
 from ton_core.contrib.messages import WalletMessage
 from ton_core.contrib.types import (
     DEFAULT_SUBWALLET_ID,
+    WALLET_TG_SUBWALLET_ID,
     NetworkGlobalID,
     PublicKey,
     WorkchainID,
@@ -25,6 +26,7 @@ __all__ = [
     "WalletHighloadV2Data",
     "WalletHighloadV3Data",
     "WalletPreprocessedV2Data",
+    "WalletTgData",
     "WalletV1Data",
     "WalletV2Data",
     "WalletV3Data",
@@ -459,6 +461,48 @@ class WalletPreprocessedV2Data(BaseWalletData):
         )
 
 
+class WalletTgData(BaseWalletData):
+    """On-chain data for WalletTg."""
+
+    def __init__(
+        self,
+        public_key: PublicKey,
+        seqno: int = 0,
+        subwallet_id: int = WALLET_TG_SUBWALLET_ID,
+        revision: int = 0,
+    ) -> None:
+        """Initialize WalletTg data.
+
+        :param public_key: Ed25519 public key.
+        :param seqno: Sequence number.
+        :param subwallet_id: Subwallet identifier.
+        :param revision: Storage revision (uint8 prefix of the data cell).
+        """
+        super().__init__(public_key)
+        self.seqno = seqno
+        self.subwallet_id = subwallet_id
+        self.revision = revision
+
+    def serialize(self) -> Cell:
+        """Serialize to Cell."""
+        cell = begin_cell()
+        cell.store_uint(self.revision, 8)
+        cell.store_uint(self.seqno, 32)
+        cell.store_uint(self.subwallet_id, 32)
+        cell.store_bytes(self.public_key.as_bytes)
+        return cell.end_cell()
+
+    @classmethod
+    def deserialize(cls, cs: Slice) -> WalletTgData:
+        """Deserialize from Slice."""
+        return cls(
+            revision=cs.load_uint(8),
+            seqno=cs.load_uint(32),
+            subwallet_id=cs.load_uint(32),
+            public_key=PublicKey(cs.load_bytes(32)),
+        )
+
+
 class OutActionSendMsg(TlbScheme):
     """Output action for sending a message from a wallet contract."""
 
@@ -548,4 +592,3 @@ class EncryptedTextCommentBody(TlbScheme):
                 f"Encrypted payload too short: expected >= 48 bytes, got {len(payload)}"
             )
         return cls(payload[:32], payload[32:48], payload[48:])
-

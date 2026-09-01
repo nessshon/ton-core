@@ -12,6 +12,7 @@ __all__ = [
     "WalletHighloadV2Params",
     "WalletHighloadV3Params",
     "WalletPreprocessedV2Params",
+    "WalletTgParams",
     "WalletV1Params",
     "WalletV2Params",
     "WalletV3Params",
@@ -142,3 +143,14 @@ class WalletPreprocessedV2Params(BaseWalletParams):
     valid_until: int | None = None
     """Expiration unix timestamp, or None."""
 
+
+@dataclass
+class WalletTgParams(BaseWalletParams):
+    """Transaction parameters for WalletTg."""
+
+    seqno: int | None = None
+    """Sequence number (fetched from contract if None)."""
+    valid_until: int | None = None
+    """Expiration unix timestamp, or None."""
+    op_code: int | None = None
+    """Operation code (default: the external variant of the request)."""

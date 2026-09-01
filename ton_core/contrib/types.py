@@ -18,6 +18,9 @@ __all__ = [
     "DEFAULT_SUBWALLET_ID",
     "MAINNET_GENESIS_UTIME",
     "MASTERCHAIN_SHARD",
+    "WALLET_TG_KEY_ROTATION_PROOF_TAG",
+    "WALLET_TG_SUBWALLET_ID",
+    "WALLET_TG_SUBWALLET_ID_TESTNET",
     "AddressLike",
     "BagID",
     "Binary",
@@ -49,6 +52,15 @@ MAINNET_GENESIS_UTIME: int = 1573822385
 
 DEFAULT_SUBWALLET_ID: int = 698983191
 """Default subwallet ID used in wallet contracts."""
+
+WALLET_TG_SUBWALLET_ID: int = 0x7FFF7F11
+"""Default mainnet subwallet ID of the Telegram wallet (WalletTg)."""
+
+WALLET_TG_SUBWALLET_ID_TESTNET: int = 0x7FFF7FFD
+"""Default testnet subwallet ID of the Telegram wallet (WalletTg)."""
+
+WALLET_TG_KEY_ROTATION_PROOF_TAG: int = 0x4B45595F524F544154494F4E
+"""ASCII ``KEY_ROTATION`` uint96 tag of the WalletTg key-rotation proof payload."""
 
 
 class NetworkGlobalID(int, Enum):
