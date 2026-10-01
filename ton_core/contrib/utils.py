@@ -19,6 +19,7 @@ from nacl.bindings import (
     crypto_sign_ed25519_pk_to_curve25519,
     crypto_sign_ed25519_sk_to_curve25519,
 )
+from nacl.exceptions import CryptoError
 
 from ton_core.boc import begin_cell
 from ton_core.boc.address import Address
@@ -508,7 +509,11 @@ class TextCipher:
 
         pub_xor, msg_key, enc_data = cls._parse_payload(payload)
         their_pubkey_ed25519 = cls._xor32(pub_xor, our_pubkey_32)
-        shared = cls._shared_key_from_ed25519(sk_ed25519_64, their_pubkey_ed25519)
+        try:
+            shared = cls._shared_key_from_ed25519(sk_ed25519_64, their_pubkey_ed25519)
+        except CryptoError as e:
+            # A key other than the recipient's unmasks a sender key that is not a curve point.
+            raise ValueError("Message key mismatch.") from e
 
         key, iv = cls._derive(shared, msg_key)
         dec_data = AES.new(key, AES.MODE_CBC, iv).decrypt(enc_data)
