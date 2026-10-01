@@ -18,6 +18,7 @@ __all__ = [
     "DEFAULT_SUBWALLET_ID",
     "MAINNET_GENESIS_UTIME",
     "MASTERCHAIN_SHARD",
+    "WALLET_TG_KEY_CHANGE_SALT",
     "WALLET_TG_KEY_ROTATION_PROOF_TAG",
     "WALLET_TG_SUBWALLET_ID",
     "WALLET_TG_SUBWALLET_ID_TESTNET",
@@ -61,6 +62,9 @@ WALLET_TG_SUBWALLET_ID_TESTNET: int = 0x7FFF7FFD
 
 WALLET_TG_KEY_ROTATION_PROOF_TAG: int = 0x4B45595F524F544154494F4E
 """ASCII ``KEY_ROTATION`` uint96 tag of the WalletTg key-rotation proof payload."""
+
+WALLET_TG_KEY_CHANGE_SALT: bytes = b"keyChangeSaltV1"
+"""Salt of the old private key encrypted by a WalletTg key rotation."""
 
 
 class NetworkGlobalID(int, Enum):

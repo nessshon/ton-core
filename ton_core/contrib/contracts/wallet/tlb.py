@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import hashlib
 
 from ton_core.boc import begin_cell
 from ton_core.boc.builder import Builder
@@ -10,8 +11,10 @@ from ton_core.contrib.contracts.opcodes import OpCode
 from ton_core.contrib.messages import WalletMessage
 from ton_core.contrib.types import (
     DEFAULT_SUBWALLET_ID,
+    WALLET_TG_KEY_CHANGE_SALT,
     WALLET_TG_SUBWALLET_ID,
     NetworkGlobalID,
+    PrivateKey,
     PublicKey,
     WorkchainID,
 )
@@ -26,7 +29,9 @@ __all__ = [
     "WalletHighloadV2Data",
     "WalletHighloadV3Data",
     "WalletPreprocessedV2Data",
+    "WalletTgChangePublicKeyBody",
     "WalletTgData",
+    "WalletTgKeyChangedBody",
     "WalletV1Data",
     "WalletV2Data",
     "WalletV3Data",
@@ -35,6 +40,18 @@ __all__ = [
     "WalletV5Data",
     "WalletV5SubwalletID",
 ]
+
+
+def _xor_key_change_mask(value: bytes, new_private_key: PrivateKey, salt: bytes) -> bytes:
+    """XOR 32 bytes with ``sha256(new_seed || salt)``.
+
+    :param value: Old private key seed, or its encrypted form.
+    :param new_private_key: Private key installed by the rotation.
+    :param salt: Key-change salt.
+    :return: 32-byte result.
+    """
+    mask = hashlib.sha256(new_private_key.as_bytes + salt).digest()
+    return bytes(a ^ b for a, b in zip(mask, value))
 
 
 class BaseWalletData(TlbScheme, abc.ABC):
@@ -501,6 +518,116 @@ class WalletTgData(BaseWalletData):
             subwallet_id=cs.load_uint(32),
             public_key=PublicKey(cs.load_bytes(32)),
         )
+
+
+class WalletTgChangePublicKeyBody(TlbScheme):
+    """Unsigned WalletTg request rotating the signing key (opcode 0xFBBA99C7 / 0xFBBA99C8)."""
+
+    def __init__(
+        self,
+        new_public_key: PublicKey,
+        rotation_signature: bytes,
+        encrypted_old_private_key: bytes,
+        seqno: int,
+        valid_until: int,
+        subwallet_id: int = WALLET_TG_SUBWALLET_ID,
+        op_code: int = OpCode.WALLET_TG_CHANGE_PUBLIC_KEY_EXTERNAL,
+    ) -> None:
+        """Initialize WalletTgChangePublicKeyBody.
+
+        :param new_public_key: Ed25519 public key to rotate to.
+        :param rotation_signature: Key-rotation proof signed by the new key (64 bytes).
+        :param encrypted_old_private_key: Current private key encrypted with the new one (32 bytes).
+        :param seqno: Sequence number.
+        :param valid_until: Request expiration Unix timestamp.
+        :param subwallet_id: Subwallet identifier.
+        :param op_code: ``WALLET_TG_CHANGE_PUBLIC_KEY_EXTERNAL`` or ``WALLET_TG_CHANGE_PUBLIC_KEY_INTERNAL``.
+        """
+        self.new_public_key = new_public_key
+        self.rotation_signature = rotation_signature
+        self.encrypted_old_private_key = encrypted_old_private_key
+        self.seqno = seqno
+        self.valid_until = valid_until
+        self.subwallet_id = subwallet_id
+        self.op_code = op_code
+
+    def serialize(self) -> Cell:
+        """Serialize to Cell."""
+        cell = begin_cell()
+        cell.store_uint(self.op_code, 32)
+        cell.store_uint(self.subwallet_id, 32)
+        cell.store_uint(self.valid_until, 32)
+        cell.store_uint(self.seqno, 32)
+        cell.store_bytes(self.new_public_key.as_bytes)
+        cell.store_ref(begin_cell().store_bytes(self.rotation_signature).end_cell())
+        cell.store_ref(begin_cell().store_bytes(self.encrypted_old_private_key).end_cell())
+        return cell.end_cell()
+
+    @classmethod
+    def deserialize(cls, cs: Slice) -> WalletTgChangePublicKeyBody:
+        """Deserialize from Slice."""
+        return cls(
+            op_code=cs.load_uint(32),
+            subwallet_id=cs.load_uint(32),
+            valid_until=cs.load_uint(32),
+            seqno=cs.load_uint(32),
+            new_public_key=PublicKey(cs.load_bytes(32)),
+            rotation_signature=cs.load_ref().begin_parse().load_bytes(64),
+            encrypted_old_private_key=cs.load_ref().begin_parse().load_bytes(32),
+        )
+
+
+class WalletTgKeyChangedBody(TlbScheme):
+    """External-out body emitted by WalletTg on a key rotation (opcode 0xEBA19948)."""
+
+    def __init__(self, encrypted_old_private_key: bytes) -> None:
+        """Initialize WalletTgKeyChangedBody.
+
+        :param encrypted_old_private_key: Replaced private key encrypted with the new one (32 bytes).
+        """
+        self.encrypted_old_private_key = encrypted_old_private_key
+
+    @classmethod
+    def from_keys(
+        cls,
+        old_private_key: PrivateKey,
+        new_private_key: PrivateKey,
+        salt: bytes = WALLET_TG_KEY_CHANGE_SALT,
+    ) -> WalletTgKeyChangedBody:
+        """Encrypt the replaced private key with the new one.
+
+        :param old_private_key: Private key being replaced.
+        :param new_private_key: Private key being installed.
+        :param salt: Key-change salt; a custom one is known only to whoever set it.
+        :return: ``WalletTgKeyChangedBody`` with the encrypted old key.
+        """
+        return cls(_xor_key_change_mask(old_private_key.as_bytes, new_private_key, salt))
+
+    def decrypt(
+        self,
+        new_private_key: PrivateKey,
+        salt: bytes = WALLET_TG_KEY_CHANGE_SALT,
+    ) -> PrivateKey:
+        """Recover the replaced private key with the new one.
+
+        :param new_private_key: Private key installed by the rotation.
+        :param salt: Key-change salt the rotation was made with.
+        :return: Replaced ``PrivateKey``.
+        """
+        return PrivateKey(_xor_key_change_mask(self.encrypted_old_private_key, new_private_key, salt))
+
+    def serialize(self) -> Cell:
+        """Serialize to Cell."""
+        cell = begin_cell()
+        cell.store_uint(OpCode.WALLET_TG_KEY_CHANGED, 32)
+        cell.store_bytes(self.encrypted_old_private_key)
+        return cell.end_cell()
+
+    @classmethod
+    def deserialize(cls, cs: Slice) -> WalletTgKeyChangedBody:
+        """Deserialize from Slice."""
+        cs.skip_bits(32)
+        return cls(cs.load_bytes(32))
 
 
 class OutActionSendMsg(TlbScheme):

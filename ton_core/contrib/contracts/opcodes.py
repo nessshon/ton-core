@@ -119,3 +119,5 @@ class OpCode(int, Enum):
     """Rotate the signing key of a Telegram wallet for internal messages."""
     WALLET_TG_CHANGE_PUBLIC_KEY_EXTERNAL = 0xFBBA99C8
     """Rotate the signing key of a Telegram wallet for external messages."""
+    WALLET_TG_KEY_CHANGED = 0xEBA19948
+    """Notify that the signing key of a Telegram wallet was rotated."""

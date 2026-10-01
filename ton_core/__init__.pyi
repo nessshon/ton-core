@@ -143,7 +143,9 @@ from .contrib.contracts.wallet.tlb import TextCommentBody as TextCommentBody
 from .contrib.contracts.wallet.tlb import WalletHighloadV2Data as WalletHighloadV2Data
 from .contrib.contracts.wallet.tlb import WalletHighloadV3Data as WalletHighloadV3Data
 from .contrib.contracts.wallet.tlb import WalletPreprocessedV2Data as WalletPreprocessedV2Data
+from .contrib.contracts.wallet.tlb import WalletTgChangePublicKeyBody as WalletTgChangePublicKeyBody
 from .contrib.contracts.wallet.tlb import WalletTgData as WalletTgData
+from .contrib.contracts.wallet.tlb import WalletTgKeyChangedBody as WalletTgKeyChangedBody
 from .contrib.contracts.wallet.tlb import WalletV1Data as WalletV1Data
 from .contrib.contracts.wallet.tlb import WalletV2Data as WalletV2Data
 from .contrib.contracts.wallet.tlb import WalletV3Data as WalletV3Data
@@ -160,6 +162,7 @@ from .contrib.types import DEFAULT_SENDMODE as DEFAULT_SENDMODE
 from .contrib.types import DEFAULT_SUBWALLET_ID as DEFAULT_SUBWALLET_ID
 from .contrib.types import MAINNET_GENESIS_UTIME as MAINNET_GENESIS_UTIME
 from .contrib.types import MASTERCHAIN_SHARD as MASTERCHAIN_SHARD
+from .contrib.types import WALLET_TG_KEY_CHANGE_SALT as WALLET_TG_KEY_CHANGE_SALT
 from .contrib.types import WALLET_TG_KEY_ROTATION_PROOF_TAG as WALLET_TG_KEY_ROTATION_PROOF_TAG
 from .contrib.types import WALLET_TG_SUBWALLET_ID as WALLET_TG_SUBWALLET_ID
 from .contrib.types import WALLET_TG_SUBWALLET_ID_TESTNET as WALLET_TG_SUBWALLET_ID_TESTNET
