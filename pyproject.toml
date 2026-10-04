@@ -13,7 +13,7 @@ maintainers = [
     { name = "nessshon" },
 ]
 dependencies = [
-    "pytoniq-core~=0.2.0",
+    "pytoniq-core~=0.2.1",
 ]
 keywords = [
     "TON",
