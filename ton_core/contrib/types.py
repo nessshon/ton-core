@@ -18,6 +18,7 @@ __all__ = [
     "DEFAULT_SUBWALLET_ID",
     "MAINNET_GENESIS_UTIME",
     "MASTERCHAIN_SHARD",
+    "MNEMONIC_LENGTHS",
     "WALLET_TG_KEY_CHANGE_SALT",
     "WALLET_TG_KEY_ROTATION_PROOF_TAG",
     "WALLET_TG_SUBWALLET_ID",
@@ -30,6 +31,7 @@ __all__ = [
     "DNSCategory",
     "DNSPrefix",
     "MetadataPrefix",
+    "MnemonicType",
     "NetworkGlobalID",
     "PrivateKey",
     "PublicKey",
@@ -65,6 +67,9 @@ WALLET_TG_KEY_ROTATION_PROOF_TAG: int = 0x4B45595F524F544154494F4E
 
 WALLET_TG_KEY_CHANGE_SALT: bytes = b"keyChangeSaltV1"
 """Salt of the old private key encrypted by a WalletTg key rotation."""
+
+MNEMONIC_LENGTHS: tuple[int, ...] = (12, 15, 18, 21, 24)
+"""Accepted mnemonic word counts, for both TON and Multichain (BIP-39) schemes."""
 
 
 class NetworkGlobalID(int, Enum):
@@ -194,6 +199,16 @@ class ContractState(str, Enum):
 
     NONEXIST = "nonexist"
     """No balance or state."""
+
+
+class MnemonicType(str, Enum):
+    """Mnemonic-to-key derivation scheme (TEP-3)."""
+
+    TON = "ton"
+    """TON mnemonic: PBKDF2 over HMAC-SHA512 of the words."""
+
+    MULTICHAIN = "multichain"
+    """BIP-39 mnemonic with SLIP-10 Ed25519 derivation under ``m/44'/607'``."""
 
 
 @dataclass(frozen=True)

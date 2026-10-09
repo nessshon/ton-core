@@ -8,6 +8,7 @@ import hmac
 import json
 import os
 import time
+import unicodedata
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,7 @@ from nacl.bindings import (
     crypto_scalarmult,
     crypto_sign_ed25519_pk_to_curve25519,
     crypto_sign_ed25519_sk_to_curve25519,
+    crypto_sign_seed_keypair,
 )
 from nacl.exceptions import CryptoError
 
@@ -27,7 +29,13 @@ from ton_core.boc.builder import Builder
 from ton_core.boc.cell import Cell
 from ton_core.boc.hashmap import HashMap
 from ton_core.boc.slice import Slice
-from ton_core.contrib.types import PrivateKey, PublicKey
+from ton_core.contrib.types import (
+    MNEMONIC_LENGTHS,
+    MnemonicType,
+    PrivateKey,
+    PublicKey,
+)
+from ton_core.crypto.keys import is_basic_seed, mnemonic_new, mnemonic_to_entropy, words
 from ton_core.tlb.config import ConfigParam
 from ton_core.tlb.transaction import MessageAny
 
@@ -38,9 +46,13 @@ __all__ = [
     "cell_to_b64",
     "cell_to_hex",
     "decode_dns_name",
+    "detect_mnemonic_type",
     "encode_dns_name",
     "load_json",
     "maybe_stack_addr",
+    "multichain_mnemonic_is_valid",
+    "multichain_mnemonic_new",
+    "multichain_mnemonic_to_private_key",
     "norm_stack_cell",
     "norm_stack_num",
     "normalize_hash",
@@ -50,6 +62,8 @@ __all__ = [
     "to_amount",
     "to_cell",
     "to_nano",
+    "ton_mnemonic_is_valid",
+    "ton_mnemonic_new",
 ]
 
 
@@ -341,6 +355,114 @@ def calc_valid_until(seqno: int, ttl: int = 60) -> int:
     """
     now = int(time.time())
     return 0xFFFFFFFF if seqno == 0 else now + ttl
+
+
+def detect_mnemonic_type(mnemo_words: list[str]) -> MnemonicType | None:
+    """Detect the scheme of a mnemonic by its checksums.
+
+    :param mnemo_words: Mnemonic words.
+    :return: The only scheme the mnemonic is valid in,
+        or ``None`` if it is valid in both or in neither.
+    """
+    ton_valid = ton_mnemonic_is_valid(mnemo_words)
+    if ton_valid == multichain_mnemonic_is_valid(mnemo_words):
+        return None
+    return MnemonicType.TON if ton_valid else MnemonicType.MULTICHAIN
+
+
+def ton_mnemonic_is_valid(mnemo_words: list[str]) -> bool:
+    """Check a TON mnemonic: length, wordlist and checksum.
+
+    Unlike ``mnemonic_is_valid``, accepts every length in ``MNEMONIC_LENGTHS``, not only 24 words.
+
+    :param mnemo_words: Mnemonic words.
+    :return: ``True`` if the mnemonic is a valid TON phrase.
+    """
+    if len(mnemo_words) not in MNEMONIC_LENGTHS or any(w not in words for w in mnemo_words):
+        return False
+
+    return is_basic_seed(mnemonic_to_entropy(mnemo_words))
+
+
+def ton_mnemonic_new(words_count: int = 24) -> list[str]:
+    """Generate a TON mnemonic that is not also a valid Multichain mnemonic.
+
+    :param words_count: Number of words, one of ``MNEMONIC_LENGTHS`` (default: 24).
+    :return: Mnemonic words.
+    :raises ValueError: If words_count is not in ``MNEMONIC_LENGTHS``.
+    """
+    if words_count not in MNEMONIC_LENGTHS:
+        raise ValueError(f"Words count must be one of {MNEMONIC_LENGTHS}.")
+    while True:
+        mnemo_words = mnemonic_new(words_count)
+        if not multichain_mnemonic_is_valid(mnemo_words):
+            return mnemo_words
+
+
+def multichain_mnemonic_is_valid(mnemo_words: list[str]) -> bool:
+    """Check a Multichain (BIP-39) mnemonic: length, wordlist and checksum.
+
+    :param mnemo_words: Mnemonic words.
+    :return: ``True`` if the mnemonic is a valid BIP-39 phrase.
+    """
+    if len(mnemo_words) not in MNEMONIC_LENGTHS or any(w not in words for w in mnemo_words):
+        return False
+
+    bits = "".join(f"{words.index(w):011b}" for w in mnemo_words)
+    checksum_len = len(bits) // 33
+    entropy = int(bits[:-checksum_len], 2).to_bytes((len(bits) - checksum_len) // 8, "big")
+    return bits[-checksum_len:] == f"{hashlib.sha256(entropy).digest()[0]:08b}"[:checksum_len]
+
+
+def multichain_mnemonic_new(words_count: int = 12) -> list[str]:
+    """Generate a Multichain (BIP-39) mnemonic that is not also a valid TON mnemonic.
+
+    :param words_count: Number of words, one of ``MNEMONIC_LENGTHS`` (default: 12).
+    :return: Mnemonic words.
+    :raises ValueError: If words_count is not in ``MNEMONIC_LENGTHS``.
+    """
+    if words_count not in MNEMONIC_LENGTHS:
+        raise ValueError(f"Words count must be one of {MNEMONIC_LENGTHS}.")
+    while True:
+        entropy = os.urandom(words_count * 4 // 3)
+        bits = "".join(f"{b:08b}" for b in entropy) + f"{hashlib.sha256(entropy).digest()[0]:08b}"[: words_count // 3]
+        mnemo_words = [words[int(bits[i : i + 11], 2)] for i in range(0, len(bits), 11)]
+        if not ton_mnemonic_is_valid(mnemo_words):
+            return mnemo_words
+
+
+def _derive_ed25519_path(seed: bytes, path: list[int]) -> bytes:
+    """SLIP-10 Ed25519 derivation; Ed25519 allows hardened indexes only.
+
+    :param seed: BIP-39 seed.
+    :param path: Path indexes, hardened implicitly.
+    :return: 32-byte private key seed.
+    """
+    digest = hmac.new(b"ed25519 seed", seed, hashlib.sha512).digest()
+    key, chain_code = digest[:32], digest[32:]
+    for index in path:
+        data = b"\x00" + key + (index | 0x80000000).to_bytes(4, "big")
+        digest = hmac.new(chain_code, data, hashlib.sha512).digest()
+        key, chain_code = digest[:32], digest[32:]
+    return key
+
+
+def multichain_mnemonic_to_private_key(mnemo_words: list[str], index: int = 0) -> tuple[bytes, bytes]:
+    """Derive an Ed25519 key pair from a Multichain (BIP-39) mnemonic (TEP-3).
+
+    BIP-39 seed, then SLIP-10 Ed25519 derivation at ``m/44'/607'/{index}'``.
+
+    :param mnemo_words: Mnemonic words.
+    :param index: Account index in the derivation path (default: 0).
+    :return: Tuple of (public_key, secret_key) bytes, as ``mnemonic_to_private_key``.
+    :raises ValueError: If index is outside ``[0, 0x80000000)``.
+    """
+    if not 0 <= index < 0x80000000:
+        raise ValueError("Index must be in [0, 0x80000000).")
+    phrase = unicodedata.normalize("NFKD", " ".join(mnemo_words))
+    seed = hashlib.pbkdf2_hmac("sha512", phrase.encode(), b"mnemonic", 2048)
+    key = _derive_ed25519_path(seed, [44, 607, index])
+    return crypto_sign_seed_keypair(key)
 
 
 def load_json(source: str, timeout: float = 5.0) -> Any:

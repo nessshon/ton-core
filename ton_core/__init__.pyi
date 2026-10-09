@@ -162,6 +162,7 @@ from .contrib.types import DEFAULT_SENDMODE as DEFAULT_SENDMODE
 from .contrib.types import DEFAULT_SUBWALLET_ID as DEFAULT_SUBWALLET_ID
 from .contrib.types import MAINNET_GENESIS_UTIME as MAINNET_GENESIS_UTIME
 from .contrib.types import MASTERCHAIN_SHARD as MASTERCHAIN_SHARD
+from .contrib.types import MNEMONIC_LENGTHS as MNEMONIC_LENGTHS
 from .contrib.types import WALLET_TG_KEY_CHANGE_SALT as WALLET_TG_KEY_CHANGE_SALT
 from .contrib.types import WALLET_TG_KEY_ROTATION_PROOF_TAG as WALLET_TG_KEY_ROTATION_PROOF_TAG
 from .contrib.types import WALLET_TG_SUBWALLET_ID as WALLET_TG_SUBWALLET_ID
@@ -174,6 +175,7 @@ from .contrib.types import ContractState as ContractState
 from .contrib.types import DNSCategory as DNSCategory
 from .contrib.types import DNSPrefix as DNSPrefix
 from .contrib.types import MetadataPrefix as MetadataPrefix
+from .contrib.types import MnemonicType as MnemonicType
 from .contrib.types import NetworkGlobalID as NetworkGlobalID
 from .contrib.types import PrivateKey as PrivateKey
 from .contrib.types import PublicKey as PublicKey
@@ -187,9 +189,13 @@ from .contrib.utils import cell_hash as cell_hash
 from .contrib.utils import cell_to_b64 as cell_to_b64
 from .contrib.utils import cell_to_hex as cell_to_hex
 from .contrib.utils import decode_dns_name as decode_dns_name
+from .contrib.utils import detect_mnemonic_type as detect_mnemonic_type
 from .contrib.utils import encode_dns_name as encode_dns_name
 from .contrib.utils import load_json as load_json
 from .contrib.utils import maybe_stack_addr as maybe_stack_addr
+from .contrib.utils import multichain_mnemonic_is_valid as multichain_mnemonic_is_valid
+from .contrib.utils import multichain_mnemonic_new as multichain_mnemonic_new
+from .contrib.utils import multichain_mnemonic_to_private_key as multichain_mnemonic_to_private_key
 from .contrib.utils import norm_stack_cell as norm_stack_cell
 from .contrib.utils import norm_stack_num as norm_stack_num
 from .contrib.utils import normalize_hash as normalize_hash
@@ -199,6 +205,8 @@ from .contrib.utils import string_hash as string_hash
 from .contrib.utils import to_amount as to_amount
 from .contrib.utils import to_cell as to_cell
 from .contrib.utils import to_nano as to_nano
+from .contrib.utils import ton_mnemonic_is_valid as ton_mnemonic_is_valid
+from .contrib.utils import ton_mnemonic_new as ton_mnemonic_new
 from .crypto import PBKDF_ITERATIONS as PBKDF_ITERATIONS
 from .crypto import AdnlChannel as AdnlChannel
 from .crypto import Client as Client
